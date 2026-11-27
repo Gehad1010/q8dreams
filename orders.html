@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة متابعة الطلبات والبيانات غير المكتملة | Q8Dreams</title>
+  <link rel="icon" type="image/png" href="./assets/drive/RES.pdf (1).png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-200);
+      margin-bottom: var(--spacing-400);
+    }
+    .stat-card {
+      background: var(--surface-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: var(--spacing-300);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-50);
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--spacing-200);
+      margin-bottom: var(--spacing-300);
+    }
+    .filter-tabs {
+      display: inline-flex;
+      gap: var(--spacing-75);
+      background: var(--surface-muted);
+      padding: var(--spacing-50);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+    }
+    .tab-btn {
+      padding: var(--spacing-75) var(--spacing-200);
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      color: var(--ink-secondary);
+      transition: background-color var(--duration-hover) var(--ease-out-expo),
+                  color var(--duration-hover) var(--ease-out-expo);
+    }
+    .tab-btn.is-active {
+      background: var(--surface-page);
+      color: var(--brand-primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-100);
+      flex-wrap: wrap;
+    }
+    .table-wrap {
+      background: var(--surface-page);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+    }
+    th, td {
+      padding: var(--spacing-200);
+      text-align: right;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+    th {
+      background: var(--surface-subtle);
+      color: var(--ink-muted);
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-50);
+      padding: var(--spacing-50) var(--spacing-100);
+      border-radius: var(--radius-full);
+    }
+    .badge-completed {
+      background: var(--status-success-bg);
+      color: var(--status-success);
+    }
+    .badge-incomplete {
+      background: var(--status-warning-bg);
+      color: var(--status-warning);
+    }
+    .empty-state {
+      padding: var(--spacing-700) var(--spacing-300);
+      text-align: center;
+      color: var(--ink-muted);
+    }
+    .action-row {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-75);
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-subtle);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-secondary);
+    }
+    .icon-btn:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+    }
+    @media (max-width: 960px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body style="background-color: var(--surface-subtle);">
+  <header class="nav-wrapper">
+    <nav class="navbar" aria-label="التنقل الرئيسي">
+      <a href="./index.html" class="nav-brand">
+        <img src="./assets/drive/RES.pdf (450 x 100 px) (4).png" alt="شعار Q8Dreams" width="144" height="32" />
+      </a>
+      <div class="nav-actions">
+        <button type="button" id="logout-btn" class="btn btn-secondary button-sm" hidden>
+          <i class="ph ph-sign-out" aria-hidden="true"></i>
+          <span>خروج</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Login View -->
+  <section id="login-view" class="section" style="padding-top: var(--spacing-700);">
+    <div class="container" style="max-width: 440px;">
+      <form id="login-form" class="order-card" novalidate>
+        <div style="text-align: center;">
+          <span class="trust-icon" style="margin-inline: auto; margin-bottom: var(--spacing-100);" aria-hidden="true">
+            <i class="ph ph-lock-key"></i>
+          </span>
+          <h1 class="heading-5">دخول إدارة الطلبات</h1>
+          <p class="body-5" style="color: var(--ink-muted); margin-top: var(--spacing-50);">أدخل اسم المستخدم وكلمة المرور للمتابعة</p>
+        </div>
+
+        <div class="field">
+          <label for="admin-user" class="caption-1">اسم المستخدم</label>
+          <input id="admin-user" type="text" class="input body-3" autocomplete="username" required />
+        </div>
+
+        <div class="field">
+          <label for="admin-pass" class="caption-1">كلمة المرور</label>
+          <input id="admin-pass" type="password" class="input body-3" autocomplete="current-password" required />
+        </div>
+
+        <div id="login-error" class="form-status body-5" role="alert"></div>
+
+        <button type="submit" class="btn btn-primary btn-cta-wide button-md">
+          <span>تسجيل الدخول</span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <main id="dashboard-view" class="section" style="padding-top: var(--spacing-500);" hidden>
+    <div class="container">
+      <div style="margin-bottom: var(--spacing-400);">
+        <h1 class="heading-3">متابعة الطلبات</h1>
+        <p class="body-3" style="color: var(--ink-secondary); margin-top: var(--spacing-50);">
+          تابع الطلبات المكتملة والعملاء الذين أدخلوا بياناتهم ولم يضغطوا على زر الطلب.
+        </p>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="caption-1" style="color: var(--ink-muted);">إجمالي السجلات</span>
+          <strong id="stat-total" class="heading-3 num-tabular">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="caption-1" style="color: var(--status-success);">طلبات مكتملة</span>
+          <strong id="stat-completed" class="heading-3 num-tabular" style="color: var(--status-success);">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="caption-1" style="color: var(--status-warning);">غير مكتملة (متروكة)</span>
+          <strong id="stat-incomplete" class="heading-3 num-tabular" style="color: var(--status-warning);">0</strong>
+        </div>
+        <div class="stat-card">
+          <span class="caption-1" style="color: var(--brand-primary);">مبيعات المكتملة</span>
+          <strong id="stat-revenue" class="heading-3 num-tabular" style="color: var(--brand-primary);">0.00 د.ك</strong>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="toolbar">
+        <div class="filter-tabs" role="tablist" aria-label="تصفية الطلبات">
+          <button type="button" class="tab-btn button-sm is-active" data-filter="all">الكل</button>
+          <button type="button" class="tab-btn button-sm" data-filter="completed">مكتمل</button>
+          <button type="button" class="tab-btn button-sm" data-filter="incomplete">غير مكتمل</button>
+        </div>
+
+        <div class="toolbar-actions">
+          <select id="landing-filter" class="input body-5" style="width: 170px; min-height: 40px;">
+            <option value="all">كل اللاندنجات</option>
+            <option value="lp-pain">لاندنج آلام الرقبة</option>
+            <option value="lp-sleep">لاندنج النوم العميق</option>
+            <option value="lp-gift">لاندنج العائلة والهدية</option>
+            <option value="v2">النسخة V2</option>
+            <option value="default">الرئيسية</option>
+          </select>
+          <input id="search-input" type="search" class="input body-5" style="width: 220px; min-height: 40px;" placeholder="ابحث بالاسم أو الهاتف أو الرقم..." />
+          <button type="button" id="refresh-btn" class="btn btn-secondary button-sm">
+            <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+            <span>تحديث</span>
+          </button>
+          <button type="button" id="export-btn" class="btn btn-primary button-sm">
+            <i class="ph ph-download-simple" aria-hidden="true"></i>
+            <span>تصدير CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr class="caption-3">
+              <th>المرجع</th>
+              <th>اللاندنج</th>
+              <th>حالة الإكمال</th>
+              <th>العميل</th>
+              <th>الهاتف</th>
+              <th>المحافظة والعنوان</th>
+              <th>الكمية والإجمالي</th>
+              <th>حالة التنفيذ</th>
+              <th>آخر تحديث</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody" class="body-5"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state body-3" hidden>
+          لا توجد طلبات أو بيانات مسجلة مطابقة حالياً.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="./orders.js"></script>
+</body>
+</html>

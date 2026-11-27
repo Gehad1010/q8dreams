@@ -1,0 +1,12 @@
+{
+  "name": "q8dreams-store",
+  "version": "1.0.0",
+  "description": "Q8Dreams standalone Arabic COD store with multi-angle landing pages, lead tracking, and Telegram alerts.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

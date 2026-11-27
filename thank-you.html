@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تم تأكيد طلبك بنجاح | Q8Dreams</title>
+  <link rel="icon" type="image/png" href="./assets/drive/RES.pdf (1).png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="nav-wrapper">
+    <nav class="navbar" aria-label="التنقل الرئيسي">
+      <a href="./index.html" class="nav-brand">
+        <img src="./assets/drive/RES.pdf (450 x 100 px) (4).png" alt="شعار Q8Dreams" width="144" height="32" />
+      </a>
+      <a href="./index.html" class="btn btn-secondary button-sm">
+        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+        <span>العودة للمتجر</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="section">
+    <div class="container" style="max-width: 720px;">
+      <div class="order-card" style="text-align: center; align-items: center;">
+        <span class="trust-icon" style="width: 64px; height: 64px; border-radius: var(--radius-full); background-color: var(--status-success-bg); color: var(--status-success); font-size: 32px;" aria-hidden="true">
+          <i class="ph-fill ph-check-circle"></i>
+        </span>
+
+        <h1 class="heading-3">شكراً لك، تم استلام طلبك بنجاح</h1>
+        <p class="body-3" style="color: var(--ink-secondary); max-width: 520px;">
+          سيتواصل معك مندوب التوصيل في الكويت خلال ساعات لتأكيد الموعد. تذكّر أنه يمكنك فحص الوسادة بنفسك قبل الدفع.
+        </p>
+
+        <div id="order-details" class="order-summary" style="width: 100%; text-align: right;">
+          <div class="summary-row body-5">
+            <span>رقم الطلب</span>
+            <strong id="ty-number" class="num-tabular title-3" style="color: var(--brand-primary);">...</strong>
+          </div>
+          <div class="summary-row body-5">
+            <span>الاسم</span>
+            <span id="ty-name" class="body-4">...</span>
+          </div>
+          <div class="summary-row body-5">
+            <span>رقم الهاتف</span>
+            <span id="ty-phone" class="num-tabular body-4" dir="ltr">...</span>
+          </div>
+          <div class="summary-row body-5">
+            <span>العنوان</span>
+            <span id="ty-address" class="body-4">...</span>
+          </div>
+          <div class="summary-row body-5">
+            <span>الكمية</span>
+            <span id="ty-qty" class="body-4">...</span>
+          </div>
+          <div class="summary-row title-2" style="padding-top: var(--spacing-75); border-top: 1px solid var(--border-subtle);">
+            <span>المبلغ عند الاستلام</span>
+            <span id="ty-total" class="num-tabular" style="color: var(--brand-primary);">...</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-100); flex-wrap: wrap; justify-content: center; width: 100%;">
+          <a href="./index.html" class="btn btn-primary button-md" style="padding: var(--spacing-100) var(--spacing-300); border-radius: var(--radius-xl);">
+            <span>طلب وسادة إضافية</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      let order = null;
+
+      if (id && window.location.protocol !== 'file:') {
+        try {
+          const res = await fetch(`/api/orders/${encodeURIComponent(id)}`);
+          if (res.ok) {
+            const data = await res.json();
+            order = data.order;
+          }
+        } catch {}
+      }
+
+      if (!order && id) {
+        try {
+          const list = JSON.parse(localStorage.getItem('q8_local_orders') || '[]');
+          order = list.find((o) => o.id === id) || null;
+        } catch {}
+      }
+
+      if (!order) {
+        try {
+          order = JSON.parse(sessionStorage.getItem('q8_last_order') || 'null');
+        } catch {}
+      }
+
+      if (!order) {
+        document.getElementById('ty-number').textContent = 'غير محدد';
+        document.getElementById('ty-name').textContent = 'عميلنا الكريم';
+        return;
+      }
+
+      document.getElementById('ty-number').textContent = order.orderNumber || order.id.slice(0, 8);
+      document.getElementById('ty-name').textContent = order.name || 'غير متوفر';
+      document.getElementById('ty-phone').textContent = order.phone || 'غير متوفر';
+      document.getElementById('ty-address').textContent = [order.governorate, order.address].filter(Boolean).join('، ');
+      document.getElementById('ty-qty').textContent = `${order.qty} وسادة`;
+      document.getElementById('ty-total').textContent = `${order.total} د.ك`;
+    })();
+  </script>
+</body>
+</html>
